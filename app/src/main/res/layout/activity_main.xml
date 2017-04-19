@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <Button
+        android:id="@+id/drawn"
+        android:layout_width="@dimen/launcher_button_width"
+        android:layout_height="wrap_content"
+        android:text="@string/drawn"
+        style="@style/Widget.AppCompat.Button.Colored" />
+
+    <Button
+        android:id="@+id/invalidated"
+        android:layout_width="@dimen/launcher_button_width"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/launcher_button_gap"
+        android:text="@string/invalidated"
+        style="@style/Widget.AppCompat.Button.Colored" />
+
+    <Button
+        android:id="@+id/measured"
+        android:layout_width="@dimen/launcher_button_width"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/launcher_button_gap"
+        android:text="@string/measured"
+        style="@style/Widget.AppCompat.Button.Colored" />
+
+    <Button
+        android:id="@+id/attributed"
+        android:layout_width="@dimen/launcher_button_width"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/launcher_button_gap"
+        android:text="@string/attributed"
+        style="@style/Widget.AppCompat.Button.Colored" />
+
+    <Button
+        android:id="@+id/interacted"
+        android:layout_width="@dimen/launcher_button_width"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/launcher_button_gap"
+        android:text="@string/interacted"
+        style="@style/Widget.AppCompat.Button.Colored" />
+
+    <Button
+        android:id="@+id/flow_layout"
+        android:layout_width="@dimen/launcher_button_width"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/launcher_button_gap"
+        android:text="@string/flow_layout"
+        style="@style/Widget.AppCompat.Button.Colored" />
+
+</LinearLayout>

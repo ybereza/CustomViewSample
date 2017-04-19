@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">CustomViewSample</string>
+    <!-- Counter launcher -->
+    <string name="drawn">Drawn</string>
+    <string name="measured">Measured</string>
+    <string name="invalidated">Invalidated</string>
+    <string name="attributed">Attributed</string>
+    <string name="interacted">Interacted</string>
+    <string name="grouped">ViewGrouped</string>
+
+    <!-- Tally counter interface -->
+    <string name="click">Click</string>
+    <string name="reset">Reset</string>
+
+    <!-- Flow layout buttons -->
+    <string name="add">Add</string>
+    <string name="remove">Remove</string>
+    <string name="flow_layout">Flow layout</string>
+</resources>
