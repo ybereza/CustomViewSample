@@ -1,11 +1,9 @@
 package ru.mipt.customviewsample.view
 
 import android.content.Context
-import android.content.res.TypedArray
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
-import android.graphics.Typeface
 import android.support.v4.content.ContextCompat
 import android.text.TextPaint
 import android.util.AttributeSet
@@ -15,8 +13,17 @@ import java.util.Locale
 
 import ru.mipt.customviewsample.R
 
-class AttributedTallyCounter(context: Context, attrs: AttributeSet? = null) : View(context, attrs), TallyCounter {
-    // Some constants
+/**
+ * Constructor that is called when inflating a view from XML. This is called
+ * when a view is being constructed from an XML file, supplying attributes
+ * that were specified in the XML file.
+ *
+ * @param context The Context the view is running in, through which it can
+ * access the current theme, resources, etc.
+ * @param attrs   The attributes of the XML tag that is inflating the view.
+ */
+class MeasuredTallyCounter(context: Context, attrs: AttributeSet? = null) : View(context, attrs), TallyCounter {
+
     private val MAX_COUNT = 9999
     private val MAX_COUNT_STRING = MAX_COUNT.toString()
 
@@ -24,8 +31,7 @@ class AttributedTallyCounter(context: Context, attrs: AttributeSet? = null) : Vi
     private var count = 0
     private var displayedCount = ""
 
-
-    // Set up paints for canvas drawing.
+    // Drawing variables
     private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val numberPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
@@ -36,40 +42,18 @@ class AttributedTallyCounter(context: Context, attrs: AttributeSet? = null) : Vi
     private val cornerRadius: Float
 
     init {
-        // Get an array containing TallyCount attributes from XML.
-        val typedArray = context
-                .obtainStyledAttributes(attrs, R.styleable.TallyCounter, 0, 0)
 
-        // Get the background color from the attributes.
-        val backgroundColor = typedArray.getColor(R.styleable.TallyCounter_backgroundColor,
-                ContextCompat.getColor(context, R.color.colorPrimary))
-        backgroundPaint.color = backgroundColor
+        // Set up paints for canvas drawing.
+        backgroundPaint.color = ContextCompat.getColor(context, R.color.colorPrimary)
 
-        // Get the baseline color and width from the attributes.
-        val baselineColor = typedArray.getColor(R.styleable.TallyCounter_baselineColor,
-                ContextCompat.getColor(context, R.color.colorAccent))
-        val baselineWidth = typedArray.getDimensionPixelSize(R.styleable.TallyCounter_baselineWidth, 1)
-        linePaint.color = baselineColor
-        linePaint.strokeWidth = baselineWidth.toFloat()
+        linePaint.color = ContextCompat.getColor(context, R.color.colorAccent)
+        linePaint.strokeWidth = 1f
 
-        // Get the text color and text size from the attributes.
-        val textColor = typedArray.getColor(R.styleable.TallyCounter_android_textColor,
-                ContextCompat.getColor(context, android.R.color.white))
-        val textSize = Math.round(
-                typedArray.getDimensionPixelSize(R.styleable.TallyCounter_android_textSize,
-                        Math.round(64f * resources.displayMetrics.scaledDensity)).toFloat()).toFloat()
+        numberPaint.color = ContextCompat.getColor(context, android.R.color.white)
+        numberPaint.textSize = Math.round(64f * resources.displayMetrics.scaledDensity).toFloat()
 
-        numberPaint.color = textColor
-        numberPaint.textSize = textSize
-
-        numberPaint.typeface = Typeface.SANS_SERIF
-
-        // Get the corner radius.
-        cornerRadius = typedArray.getDimensionPixelSize(R.styleable.TallyCounter_cornerRadius,
-                Math.round(2f * resources.displayMetrics.density)).toFloat()
-
-        // Recycle the TypeArray. Always do this!
-        typedArray.recycle()
+        // Initialize drawing measurements.
+        cornerRadius = Math.round(2f * resources.displayMetrics.density).toFloat()
 
         // Do initial count setup.
         setCount(0)
@@ -101,7 +85,7 @@ class AttributedTallyCounter(context: Context, attrs: AttributeSet? = null) : Vi
      * Reconcile a desired size for the view contents with a [android.view.View.MeasureSpec]
      * constraint passed by the parent.
      *
-     * Simplified version of [View.resolveSizeAndState].
+     * This is a simplified version of [View.resolveSize]
      *
      * @param contentSize Size of the view's contents.
      * @param measureSpec A [android.view.View.MeasureSpec] passed by the parent.
@@ -119,22 +103,26 @@ class AttributedTallyCounter(context: Context, attrs: AttributeSet? = null) : Vi
         }
     }
 
-    //
-    // View overrides
-    //
-
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val fontMetrics = numberPaint.fontMetrics
 
+        // Measure maximum possible width of text.
         val maxTextWidth = numberPaint.measureText(MAX_COUNT_STRING)
-        val maxTextHeight = -fontMetrics.top + fontMetrics.bottom
+        // Estimate maximum possible height of text.
+        val maxTextHeight = fontMetrics.bottom - fontMetrics.top
 
+        // Add padding to maximum width calculation.
         val desiredWidth = Math.round(maxTextWidth + paddingLeft.toFloat() + paddingRight.toFloat())
+
+        // Add padding to maximum height calculation.
         val desiredHeight = Math.round(maxTextHeight * 2f + paddingTop.toFloat() +
                 paddingBottom.toFloat())
 
+        // Reconcile size that this view wants to be with the size the parent will let it be.
         val measuredWidth = reconcileSize(desiredWidth, widthMeasureSpec)
         val measuredHeight = reconcileSize(desiredHeight, heightMeasureSpec)
+
+        // Store the final measured dimensions.
         setMeasuredDimension(measuredWidth, measuredHeight)
     }
 
@@ -155,9 +143,17 @@ class AttributedTallyCounter(context: Context, attrs: AttributeSet? = null) : Vi
         val baselineY = Math.round(canvasHeight * 0.6f).toFloat()
         canvas.drawLine(0f, baselineY, canvasWidth.toFloat(), baselineY, linePaint)
 
+        // Draw lines that show font top and bottom.
+        val fontMetrics = numberPaint.fontMetrics
+        val topY = Math.round(baselineY + fontMetrics.top).toFloat()
+        val bottomY = Math.round(baselineY + fontMetrics.bottom).toFloat()
+        canvas.drawLine(0f, topY, canvasWidth.toFloat(), topY, linePaint)
+        canvas.drawLine(0f, bottomY, canvasWidth.toFloat(), bottomY, linePaint)
+
         // Draw text.
         val textWidth = numberPaint.measureText(displayedCount)
         val textX = Math.round(centerX - textWidth * 0.5f).toFloat()
-        canvas.drawText(displayedCount!!, textX, baselineY, numberPaint)
+        canvas.drawText(displayedCount, textX, baselineY, numberPaint)
     }
+
 }

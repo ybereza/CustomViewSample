@@ -1,31 +1,29 @@
-
-package ru.mipt.customviewsample.view;
+package ru.mipt.customviewsample.view
 
 /**
  * An interface for a view implementing a tally counter.
  */
-public interface TallyCounter {
+interface TallyCounter {
 
     /**
      * Reset the counter.
      */
-    void reset();
+    fun reset()
 
     /**
      * Increment the counter.
      */
-    void increment();
+    fun increment();
 
     /**
      * @return The current count of the counter.
      */
-    int getCount();
+    fun getCount() : Int
 
     /**
      * Set the counter value.
      */
-    void setCount(int count);
-
+    fun setCount(count : Int)
 }
 
 

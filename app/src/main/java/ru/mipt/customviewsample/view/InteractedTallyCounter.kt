@@ -5,20 +5,33 @@ import android.content.res.TypedArray
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
-import android.graphics.Typeface
 import android.support.v4.content.ContextCompat
 import android.text.TextPaint
 import android.util.AttributeSet
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
 
 import java.util.Locale
 
 import ru.mipt.customviewsample.R
 
-class AttributedTallyCounter(context: Context, attrs: AttributeSet? = null) : View(context, attrs), TallyCounter {
-    // Some constants
+/**
+ * Constructor that is called when inflating a view from XML. This is called
+ * when a view is being constructed from an XML file, supplying attributes
+ * that were specified in the XML file.
+ *
+ * @param context The Context the view is running in, through which it can
+ * access the current theme, resources, etc.
+ * @param attrs   The attributes of the XML tag that is inflating the view.
+ */
+class InteractedTallyCounter(context: Context, attrs: AttributeSet? = null) : View(context, attrs), TallyCounter {
+
+    // State variables
     private val MAX_COUNT = 9999
     private val MAX_COUNT_STRING = MAX_COUNT.toString()
+    private val YX_RATIO_THRESHOLD = 0.4f
+    private val SCROLL_INCREMENT_THRESHOLD_DP = 72f
 
     // State variables
     private var count = 0
@@ -34,6 +47,9 @@ class AttributedTallyCounter(context: Context, attrs: AttributeSet? = null) : Vi
     private val backgroundRect = RectF()
 
     private val cornerRadius: Float
+
+    // Gesture detector
+    private val gestureDetector: GestureDetector
 
     init {
         // Get an array containing TallyCount attributes from XML.
@@ -62,8 +78,6 @@ class AttributedTallyCounter(context: Context, attrs: AttributeSet? = null) : Vi
         numberPaint.color = textColor
         numberPaint.textSize = textSize
 
-        numberPaint.typeface = Typeface.SANS_SERIF
-
         // Get the corner radius.
         cornerRadius = typedArray.getDimensionPixelSize(R.styleable.TallyCounter_cornerRadius,
                 Math.round(2f * resources.displayMetrics.density)).toFloat()
@@ -73,6 +87,40 @@ class AttributedTallyCounter(context: Context, attrs: AttributeSet? = null) : Vi
 
         // Do initial count setup.
         setCount(0)
+
+        // Initialize gesture detector.
+        gestureDetector = GestureDetector(context,
+                object : GestureDetector.SimpleOnGestureListener() {
+
+                    override fun onDown(e: MotionEvent): Boolean {
+                        return true
+                    }
+
+                    override fun onSingleTapUp(e: MotionEvent): Boolean {
+                        increment()
+                        return true
+                    }
+
+                    override fun onDoubleTap(e: MotionEvent): Boolean {
+                        increment()
+                        return true
+                    }
+
+                    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float,
+                                         velocityY: Float): Boolean {
+                        val velocityUp = velocityY < 0
+                        if (!velocityUp) {
+                            reset()
+                            return true
+                        }
+                        if (Math.abs(velocityY / velocityX) > YX_RATIO_THRESHOLD) {
+                            increment()
+                            return true
+                        }
+
+                        return false
+                    }
+                })
     }
 
     //
@@ -122,6 +170,10 @@ class AttributedTallyCounter(context: Context, attrs: AttributeSet? = null) : Vi
     //
     // View overrides
     //
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        return gestureDetector.onTouchEvent(event)
+    }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val fontMetrics = numberPaint.fontMetrics
